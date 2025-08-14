@@ -1,0 +1,47 @@
+Math Formula Hub And also can do calculations on it:
+Square — Area
+Rectangle — Area
+Circle — Area
+Triangle — Area
+Triangle — Area (Heron)
+Parallelogram — Area
+Trapezoid — Area
+Rhombus — Area (diagonals)
+Ellipse — Area
+Regular Polygon — Area
+Square —  Perimeter
+Rectangle —  Perimeter
+Circle —  Circumference
+Triangle —  Perimeter
+Parallelogram — Perimeter
+Trapezoid —  Perimeter
+Rhombus —  Perimeter
+Regular Polygon —  Perimeter
+Cube — Volume
+Cuboid — Volume
+Sphere — Volume
+Cylinder — Volume
+Cone — Volume
+Hemisphere — Volume
+Square Pyramid — Volume
+Triangular Prism — Volume
+Addition
+Subtraction
+Multiplication
+Division
+Quadratic Formula (roots)
+Sum of Arithmetic Sequence
+Pythagorean Theorem
+Sine
+Cosine
+Tangent
+Cos Double Angle
+Difference Quotient
+Arithmetic Mean
+Standard Deviation (sample)
+Permutation nP k
+Combination nCk
+Simple Interest
+Compound Interest
+Factorial
+GCD (Euclid)

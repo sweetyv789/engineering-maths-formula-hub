@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Math Formula Hub — Unified</title>
+
+  <!-- KaTeX for LaTeX rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js" crossorigin="anonymous"></script>
+
+  <style>
+    :root{
+      --bg:#f6f8fb; --card:#ffffff; --muted:#6b7280; --accent:#2563eb; --accent2:#7c3aed;
+      --radius:12px; --shadow: 0 10px 30px rgba(16,24,40,0.08);
+      --success:#16a34a; --danger:#ef4444;
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family:Inter,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+      background:linear-gradient(180deg,var(--bg),#ffffff);
+      margin:0;color:#0f172a;
+    }
+    .wrap{max-width:1200px;margin:28px auto;padding:20px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:12px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
+    h1{margin:0;font-size:20px}
+    .lead{margin:0;color:var(--muted);font-size:13px}
+    .controls{display:flex;gap:10px;align-items:center}
+    input[type=search], input.search{padding:10px 12px;border-radius:10px;border:1px solid #e6eef8;background:white;width:420px}
+    select, button{padding:9px 12px;border-radius:10px;border:0;cursor:pointer}
+    button.primary{background:var(--accent);color:white}
+    button.ghost{background:transparent;border:1px solid #eef2ff}
+    main{display:grid;grid-template-columns:1fr;gap:16px}
+    .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .card{background:linear-gradient(180deg,#fff,#fbfdff);border-radius:12px;padding:12px;border:1px solid #eef4ff;box-shadow:0 6px 14px rgba(15,23,42,0.04)}
+    .card h3{margin:0 0 6px;font-size:15px}
+    .desc{font-size:13px;color:var(--muted);margin-bottom:8px}
+    .diagram{width:120px;height:80px;border-radius:8px;background:#fbfdff;border:1px solid #eef4ff;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+    .fields{display:flex;flex-wrap:wrap;gap:8px}
+    .field{display:flex;flex-direction:column;gap:6px;min-width:120px}
+    label{font-size:12px;color:var(--muted)}
+    input[type=number], input[type=text]{padding:8px;border-radius:8px;border:1px solid #eef2ff}
+    .actions{display:flex;gap:8px;align-items:center;margin-top:8px}
+    .result{margin-top:8px;padding:9px;border-radius:8px;background:linear-gradient(180deg,#fbfdff,#f8fbff);border:1px solid #eef4ff;font-weight:600}
+    .muted{color:var(--muted);font-size:13px}
+    .toolbar{display:flex;gap:8px;align-items:center}
+    footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
+    @media (max-width:980px){.cards{grid-template-columns:1fr}.diagram{width:100%;height:140px}}
+    /* small touches for formula latex area inside a card */
+    .formula-latex-inline{background:#fbfdff;padding:8px;border-radius:6px;border:1px solid #eef4ff;margin-bottom:8px;min-height:28px}
+    .card-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:8px;flex-wrap:wrap}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">MF</div>
+        <div>
+          <h1>Math Formula Hub</h1>
+          <div class="lead">Unified hub — shapes + general formulas. Search filters across everything.</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <input id="globalSearch" class="search" type="search" placeholder="Search shapes or formulas (e.g., circle area, quadratic, volume sphere)"/>
+        <div class="toolbar">
+          <button class="primary" id="resetAll">Reset All</button>
+          <button id="downloadBtn" class="ghost">Download HTML</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="section">
+        <div class="head" style="display:flex;align-items:center;justify-content:space-between">
+          <h2 style="margin:0">Unified Calculators & Formulas</h2>
+          <div class="small muted">All items below: shapes (area/perimeter/volume) and general formulas. Use search above.</div>
+        </div>
+
+        <div class="collapsible" style="margin-top:12px">
+          <div class="cards" id="allCards">
+            <!-- cards injected here -->
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>Made for quick calculations and reference. All original functionality preserved.</footer>
+  </div>
+
+<script>
+/* =========================
+   Data model: shapes & formulas (taken from your original)
+   We'll keep shape arrays and formulasDB and create unified cards for all.
+   ========================= */
+
+/* --- SHAPES --- */
+const areaShapes = [
+  { id:'area_square', title:'Square — Area', description:'A = side²', vars:[{name:'side',label:'Side (s)'}],
+    compute: (s)=> s*s,
+    svg: ()=>`<svg viewBox="0 0 120 80" width="120" height="80"><rect x="10" y="10" width="100" height="60" fill="#eef6ff" stroke="#cfe1ff" rx="6"/><text x="60" y="45" text-anchor="middle" font-size="12" fill="#2563eb">s</text></svg>`
+  },
+  { id:'area_rectangle', title:'Rectangle — Area', description:'A = length × width', vars:[{name:'l',label:'Length (l)'},{name:'w',label:'Width (w)'}],
+    compute: (l,w)=> l*w,
+    svg: ()=>`<svg viewBox="0 0 140 80" width="120"><rect x="10" y="14" width="120" height="52" fill="#fff8ed" stroke="#ffe7c1" rx="6"/><text x="70" y="45" text-anchor="middle" font-size="12" fill="#ff8c00">l</text></svg>`
+  },
+  { id:'area_circle', title:'Circle — Area', description:'A = π r²', vars:[{name:'r',label:'Radius (r)'}],
+    compute: (r)=> Math.PI * r * r,
+    svg: ()=>`<svg viewBox="0 0 120 80" width="120"><circle cx="60" cy="40" r="28" fill="#f0f9ff" stroke="#cfeefe"/><text x="60" y="44" font-size="12" text-anchor="middle" fill="#0ea5e9">r</text></svg>`
+  },
+  { id:'area_triangle', title:'Triangle — Area', description:'A = ½ × base × height', vars:[{name:'b',label:'Base (b)'},{name:'h',label:'Height (h)'}],
+    compute: (b,h)=> 0.5 * b * h,
+    svg: ()=>`<svg viewBox="0 0 120 80" width="120"><polygon points="10,70 110,70 60,14" fill="#f3f0ff" stroke="#e6ddff"/><text x="60" y="60" font-size="12" text-anchor="middle" fill="#7c3aed">b</text></svg>`
+  },
+  { id:'area_triangle_heron', title:'Triangle — Area (Heron)', description:'A = √(s(s-a)(s-b)(s-c))', vars:[{name:'a'},{name:'b'},{name:'c'}],
+    compute: (a,b,c)=> { const s=(a+b+c)/2; const val = s*(s-a)*(s-b)*(s-c); return val<0? NaN: Math.sqrt(val); },
+    svg: ()=>`<svg viewBox="0 0 120 80" width="120"><polygon points="15,68 105,68 60,18" fill="#f3f0ff" stroke="#e6ddff"/></svg>`
+  },
+  { id:'area_parallelogram', title:'Parallelogram — Area', description:'A = base × height', vars:[{name:'base',label:'Base (b)'},{name:'height',label:'Height (h)'}],
+    compute: (b,h)=> b*h,
+    svg: ()=>`<svg viewBox="0 0 140 80" width="120"><polygon points="20,18 120,18 100,62 0,62" fill="#eefbf7" stroke="#dff6ec"/><text x="60" y="45" font-size="12" text-anchor="middle" fill="#16a34a">b</text></svg>`
+  },
+  { id:'area_trapezoid', title:'Trapezoid — Area', description:'A = ½ (a + b) × height', vars:[{name:'a',label:'Base a'},{name:'b',label:'Base b'},{name:'h',label:'Height (h)'}],
+    compute: (a,b,h)=> 0.5*(a+b)*h,
+    svg: ()=>`<svg viewBox="0 0 140 80" width="120"><polygon points="20,62 120,62 100,18 40,18" fill="#fff7f3" stroke="#ffe8dd"/></svg>`
+  },
+  { id:'area_rhombus', title:'Rhombus — Area (diagonals)', description:'A = (d1 × d2)/2', vars:[{name:'d1'},{name:'d2'}],
+    compute: (d1,d2)=> (d1*d2)/2,
+    svg: ()=>`<svg viewBox="0 0 120 80" width="120"><polygon points="60,10 110,40 60,70 10,40" fill="#fff9f0" stroke="#fff1d6"/></svg>`
+  },
+  { id:'area_ellipse', title:'Ellipse — Area', description:'A = π a b', vars:[{name:'a',label:'Semi-major (a)'},{name:'b',label:'Semi-minor (b)'}],
+    compute: (a,b)=> Math.PI * a * b,
+    svg: ()=>`<svg viewBox="0 0 140 80" width="120"><ellipse cx="70" cy="40" rx="50" ry="26" fill="#f0f7ff" stroke="#dfeeff"/></svg>`
+  },
+  { id:'area_regular_polygon', title:'Regular Polygon — Area', description:'A = (n s²) / (4 tan(π/n))', vars:[{name:'n',label:'Number of sides (n)'},{name:'s',label:'Side length (s)'}],
+    compute: (n,s)=> (n * s * s) / (4 * Math.tan(Math.PI / n)),
+    svg: ()=>`<svg viewBox="0 0 120 80" width="120"><polygon points="60,10 95,30 85,66 35,66 25,30" fill="#f9fbff" stroke="#e8f0ff"/></svg>`
+  }
+];
+
+const perimeterShapes = [
+  { id:'perim_square', title:'Square — Perimeter', description:'P = 4 × side', vars:[{name:'side'}],
+    compute: (s)=> 4*s,
+    svg: ()=>`<svg viewBox="0 0 120 80" width="120"><rect x="10" y="10" width="100" height="60" fill="#eef6ff" stroke="#cfe1ff" rx="6"/></svg>`
+  },
+  { id:'perim_rectangle', title:'Rectangle — Perimeter', description:'P = 2(l + w)', vars:[{name:'l',label:'Length (l)'},{name:'w',label:'Width (w)'}],
+    compute: (l,w)=> 2*(l+w),
+    svg: ()=>`<svg viewBox="0 0 140 80" width="120"><rect x="10" y="14" width="120" height="52" fill="#fff8ed" stroke="#ffe7c1" rx="6"/></svg>`
+  },
+  { id:'perim_triangle', title:'Triangle — Perimeter', description:'P = a + b + c', vars:[{name:'a'},{name:'b'},{name:'c'}],
+    compute: (a,b,c)=> a+b+c,
+    svg: ()=>`<svg viewBox="0 0 120 80" width="120"><polygon points="10,70 110,70 60,14" fill="#f3f0ff" stroke="#e6ddff"/></svg>`
+  },
+  { id:'perim_circle', title:'Circle — Circumference', description:'C = 2π r', vars:[{name:'r'}],
+    compute: (r)=> 2 * Math.PI * r,
+    svg: ()=>`<svg viewBox="0 0 120 80" width="120"><circle cx="60" cy="40" r="28" fill="#f0f9ff" stroke="#cfeefe"/></svg>`
+  },
+  { id:'perim_parallelogram', title:'Parallelogram — Perimeter', description:'P = 2(base + side)', vars:[{name:'base'},{name:'side'}],
+    compute: (b,s)=> 2*(b+s),
+    svg: ()=>`<svg viewBox="0 0 140 80" width="120"><polygon points="20,18 120,18 100,62 0,62" fill="#eefbf7" stroke="#dff6ec"/></svg>`
+  },
+  { id:'perim_trapezoid', title:'Trapezoid — Perimeter', description:'P = a + b + c + d', vars:[{name:'a'},{name:'b'},{name:'c'},{name:'d'}],
+    compute: (a,b,c,d)=> a+b+c+d,
+    svg: ()=>`<svg viewBox="0 0 140 80" width="120"><polygon points="20,62 120,62 100,18 40,18" fill="#fff7f3" stroke="#ffe8dd"/></svg>`
+  },
+  { id:'perim_rhombus', title:'Rhombus — Perimeter', description:'P = 4 × side', vars:[{name:'side'}],
+    compute: (s)=> 4*s,
+    svg: ()=>`<svg viewBox="0 0 120 80" width="120"><polygon points="60,10 110,40 60,70 10,40" fill="#fff9f0" stroke="#fff1d6"/></svg>`
+  },
+  { id:'perim_regular_polygon', title:'Regular Polygon — Perimeter', description:'P = n × s', vars:[{name:'n'},{name:'s'}],
+    compute: (n,s)=> n*s,
+    svg: ()=>`<svg viewBox="0 0 120 80" width="120"><polygon points="60,10 95,30 85,66 35,66 25,30" fill="#f9fbff" stroke="#e8f0ff"/></svg>`
+  }
+];
+
+const volumeShapes = [
+  { id:'vol_cube', title:'Cube — Volume', description:'V = a³', vars:[{name:'a',label:'Side (a)'}],
+    compute: (a)=> Math.pow(a,3),
+    svg: ()=>`<svg viewBox="0 0 120 80" width="120"><rect x="20" y="20" width="60" height="40" fill="#f6f9ff" stroke="#dfeaff"/><path d="M20 20 L40 8 L100 8 L80 20" stroke="#dfeaff" fill="none"/></svg>`
+  },
+  { id:'vol_cuboid', title:'Cuboid — Volume', description:'V = l × w × h', vars:[{name:'l'},{name:'w'},{name:'h'}],
+    compute: (l,w,h)=> l*w*h,
+    svg: ()=>`<svg viewBox="0 0 140 80" width="120"><rect x="20" y="20" width="70" height="40" fill="#fff8f9" stroke="#ffeef2"/></svg>`
+  },
+  { id:'vol_sphere', title:'Sphere — Volume', description:'V = 4/3 π r³', vars:[{name:'r'}],
+    compute: (r)=> (4/3) * Math.PI * Math.pow(r,3),
+    svg: ()=>`<svg viewBox="0 0 120 80" width="120"><circle cx="60" cy="40" r="28" fill="#f0fbf6" stroke="#dff7eb"/></svg>`
+  },
+  { id:'vol_cylinder', title:'Cylinder — Volume', description:'V = π r² h', vars:[{name:'r'},{name:'h'}],
+    compute: (r,h)=> Math.PI * r * r * h,
+    svg: ()=>`<svg viewBox="0 0 120 80" width="120"><ellipse cx="60" cy="20" rx="32" ry="10" fill="#f3f7ff" stroke="#e3ecff"/><rect x="28" y="20" width="64" height="36" fill="#f3f7ff" stroke="#e3ecff"/></svg>`
+  },
+  { id:'vol_cone', title:'Cone — Volume', description:'V = 1/3 π r² h', vars:[{name:'r'},{name:'h'}],
+    compute: (r,h)=> (1/3) * Math.PI * r * r * h,
+    svg: ()=>`<svg viewBox="0 0 120 80" width="120"><ellipse cx="60" cy="62" rx="32" ry="8" fill="#fffaf3" stroke="#fff0d9"/><polygon points="28,62 92,62 60,16" fill="#fffaf3" stroke="#fff0d9"/></svg>`
+  },
+  { id:'vol_hemisphere', title:'Hemisphere — Volume', description:'V = 2/3 π r³', vars:[{name:'r'}],
+    compute: (r)=> (2/3) * Math.PI * Math.pow(r,3),
+    svg: ()=>`<svg viewBox="0 0 120 80" width="120"><path d="M20 50 A40 40 0 0 1 100 50 L100 50 L20 50 Z" fill="#f3f8ff" stroke="#e3f0ff"/></svg>`
+  },
+  { id:'vol_square_pyramid', title:'Square Pyramid — Volume', description:'V = 1/3 × base² × height (square base)', vars:[{name:'b',label:'Base side (b)'},{name:'h',label:'Height (h)'}],
+    compute: (b,h)=> (1/3) * b * b * h,
+    svg: ()=>`<svg viewBox="0 0 120 80" width="120"><polygon points="60,12 96,60 24,60" fill="#fff7f0" stroke="#fff3d9"/></svg>`
+  },
+  { id:'vol_tri_prism', title:'Triangular Prism — Volume', description:'V = (1/2 × base × height_of_triangle) × length', vars:[{name:'base'},{name:'height'},{name:'length'}],
+    compute: (base,height,length)=> 0.5 * base * height * length,
+    svg: ()=>`<svg viewBox="0 0 140 80" width="120"><polygon points="20,60 60,20 100,60" fill="#f6f9ff" stroke="#e6efff"/></svg>`
+  }
+];
+
+/* --- GENERAL FORMULAS DB (as originally) --- */
+const formulasDB = [
+  {id:'add', name:'Addition', category:'Basic', description:'Add two numbers', latex:'a + b', vars:[{name:'a',label:'a'},{name:'b',label:'b'}], expr:'a + b'},
+  {id:'sub', name:'Subtraction', category:'Basic', description:'Subtract b from a', latex:'a - b', vars:[{name:'a'},{name:'b'}], expr:'a - b'},
+  {id:'mul', name:'Multiplication', category:'Basic', description:'Multiply two numbers', latex:'a \\times b', vars:[{name:'a'},{name:'b'}], expr:'a * b'},
+  {id:'div', name:'Division', category:'Basic', description:'a divided by b', latex:'\\dfrac{a}{b}', vars:[{name:'a'},{name:'b'}], expr:'a / b'},
+  {id:'quadratic', name:'Quadratic Formula (roots)', category:'Algebra', description:'Roots of ax^2 + bx + c = 0', latex:'x = \\dfrac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}', vars:[{name:'a'},{name:'b'},{name:'c'}], special:true},
+  {id:'arith_sum', name:'Sum of Arithmetic Sequence', category:'Algebra', description:'S_n = n/2 (2a + (n-1)d)', latex:'S_n = \\dfrac{n}{2}(2a + (n-1)d)', vars:[{name:'n'},{name:'a'},{name:'d'}], expr:'(n/2) * (2*a + (n-1)*d)'},
+  {id:'pythagoras', name:'Pythagorean Theorem', category:'Geometry', description:'c = √(a^2 + b^2)', latex:'c = \\sqrt{a^2 + b^2}', vars:[{name:'a'},{name:'b'}], expr:'Math.sqrt(a*a + b*b)'},
+  {id:'sin', name:'Sine', category:'Trigonometry', description:'sin(θ), θ in radians', latex:'\\sin(\\theta)', vars:[{name:'theta'}], expr:'Math.sin(theta)'},
+  {id:'cos', name:'Cosine', category:'Trigonometry', description:'cos(θ)', latex:'\\cos(\\theta)', vars:[{name:'theta'}], expr:'Math.cos(theta)'},
+  {id:'tan', name:'Tangent', category:'Trigonometry', description:'tan(θ)', latex:'\\tan(\\theta)', vars:[{name:'theta'}], expr:'Math.tan(theta)'},
+  {id:'cos_double', name:'Cos Double Angle', category:'Trigonometry', description:'cos(2x) = 2 cos^2 x - 1', latex:'\\cos(2x) = 2\\cos^2 x - 1', vars:[{name:'x'}], expr:'2 * Math.cos(x) * Math.cos(x) - 1'},
+  {id:'difference_quotient', name:'Difference Quotient', category:'Calculus', description:'(f(x+h)-f(x))/h — numeric', latex:'\\dfrac{f(x+h)-f(x)}{h}', vars:[{name:'fx'},{name:'fxh'},{name:'h'}], expr:'(fxh - fx) / h'},
+  {id:'mean', name:'Arithmetic Mean', category:'Statistics', description:'Mean of numbers (comma-separated)', latex:'\\bar{x} = \\dfrac{1}{n}\\sum x_i', vars:[{name:'list',label:'numbers (comma separated)'}], special:true},
+  {id:'std', name:'Standard Deviation (sample)', category:'Statistics', description:'Sample standard deviation', latex:'s = \\sqrt{\\dfrac{1}{n-1}\\sum (x_i - \\bar{x})^2}', vars:[{name:'list',label:'numbers (comma separated)'}], special:true},
+  {id:'perm', name:'Permutation nP k', category:'Probability', description:'nPk = n!/(n-k)!', latex:'P(n,k) = \\dfrac{n!}{(n-k)!}', vars:[{name:'n'},{name:'k'}], special:true},
+  {id:'comb', name:'Combination nCk', category:'Probability', description:'nCk = n!/(k!(n-k)!)', latex:'C(n,k) = \\dfrac{n!}{k!(n-k)!}', vars:[{name:'n'},{name:'k'}], special:true},
+  {id:'simple_interest', name:'Simple Interest', category:'Finance', description:'I = P r t', latex:'I = Prt', vars:[{name:'P'},{name:'r'},{name:'t'}], expr:'P * r * t'},
+  {id:'compound_interest', name:'Compound Interest', category:'Finance', description:'A = P(1 + r/n)^{nt}', latex:'A = P(1 + r/n)^{nt}', vars:[{name:'P'},{name:'r'},{name:'n'},{name:'t'}], expr:'P * Math.pow(1 + r/n, n * t)'},
+  {id:'factorial', name:'Factorial', category:'Basic', description:'n!', latex:'n!', vars:[{name:'n'}], special:true},
+  {id:'gcd', name:'GCD (Euclid)', category:'Algebra', description:'Greatest common divisor', latex:'\\gcd(a,b)', vars:[{name:'a'},{name:'b'}], special:true}
+];
+
+/* ========== utility functions ========== */
+function parseListInput(str){
+  return str.split(',').map(s=>Number(s.trim())).filter(x=>!Number.isNaN(x));
+}
+function factorial(n){ if(n<0) return NaN; let r=1; for(let i=2;i<=n;i++) r*=i; return r }
+function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t;} return a }
+
+/* ========== build unified item list ========== */
+const allItems = []; // each has: id, title, description, vars, compute (fn or special handler flag), svg (optional), latex(optional), kind ('shape'|'formula'), sourceCategory
+
+// push shapes with kind 'shape' and category name in sourceCategory
+areaShapes.forEach(s => allItems.push({...s, kind:'shape', sourceCategory:'Area'}));
+perimeterShapes.forEach(s => allItems.push({...s, kind:'shape', sourceCategory:'Perimeter'}));
+volumeShapes.forEach(s => allItems.push({...s, kind:'shape', sourceCategory:'Volume'}));
+
+// push formulas
+formulasDB.forEach(f => {
+  allItems.push({
+    id: f.id,
+    title: f.name,
+    description: f.description,
+    vars: f.vars || [],
+    expr: f.expr,
+    latex: f.latex,
+    special: !!f.special,
+    formulaId: f.id,
+    kind: 'formula',
+    sourceCategory: f.category || 'Other'
+  });
+});
+
+/* ========== UI helpers: create unified card ========== */
+function createCard(item){
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.title = (item.title || '').toLowerCase();
+  card.dataset.desc = (item.description || '').toLowerCase();
+  card.dataset.latex = (item.latex || '').toLowerCase();
+  card.dataset.kind = item.kind;
+  card.dataset.source = (item.sourceCategory || '').toLowerCase();
+
+  const title = document.createElement('h3'); title.textContent = item.title;
+  const desc = document.createElement('div'); desc.className = 'desc'; desc.textContent = item.description || '';
+  card.appendChild(title);
+  card.appendChild(desc);
+
+  // inline latex area (if formula)
+  if(item.latex){
+    const ldiv = document.createElement('div'); ldiv.className='formula-latex-inline';
+    try{ katex.render(item.latex, ldiv, {throwOnError:false}); } catch(e) { ldiv.textContent = item.latex; }
+    card.appendChild(ldiv);
+  }
+
+  const wrap = document.createElement('div'); wrap.style.display = 'flex'; wrap.style.gap = '12px'; wrap.style.alignItems = 'flex-start';
+
+  const diag = document.createElement('div'); diag.className = 'diagram';
+  if(item.svg) diag.innerHTML = item.svg();
+  else diag.innerHTML = (item.kind === 'shape') ? '<svg viewBox="0 0 120 80" width="120"><rect x="10" y="10" width="100" height="60" fill="#fbfbfb" stroke="#eef4ff"/></svg>' : '<div style="font-size:12px;color:var(--muted);padding:6px;text-align:center">Formula</div>';
+  wrap.appendChild(diag);
+
+  const right = document.createElement('div'); right.style.flex = '1';
+  const fields = document.createElement('div'); fields.className = 'fields';
+
+  // render inputs
+  (item.vars || []).forEach(v=>{
+    const f = document.createElement('div'); f.className='field';
+    const lab = document.createElement('label'); lab.textContent = v.label || v.name; f.appendChild(lab);
+    const inp = document.createElement('input'); inp.type = 'text'; inp.setAttribute('data-name', v.name); inp.placeholder = v.label || v.name;
+    // if shape: prefer number input
+    if(item.kind === 'shape') { inp.type = 'number'; inp.step = 'any'; }
+    f.appendChild(inp);
+    fields.appendChild(f);
+  });
+  right.appendChild(fields);
+
+  // actions: calculate, reset, copy
+  const actions = document.createElement('div'); actions.className = 'actions';
+  const calc = document.createElement('button'); calc.className='primary'; calc.textContent = 'Calculate';
+  const reset = document.createElement('button'); reset.className='ghost'; reset.textContent = 'Reset';
+  const copyBtn = document.createElement('button'); copyBtn.className='ghost'; copyBtn.textContent = 'Copy Result';
+  const out = document.createElement('div'); out.className='result'; out.textContent = '—';
+
+  // compute handler
+  calc.onclick = () => {
+    const inputs = Array.from(fields.querySelectorAll('input'));
+    const values = {};
+    inputs.forEach(i => values[i.getAttribute('data-name')] = i.value.trim());
+
+    try{
+      if(item.kind === 'shape'){
+        // all values must be numbers
+        const vals = Array.from(fields.querySelectorAll('input')).map(i => i.value === '' ? NaN : Number(i.value));
+        if(vals.some(v=> Number.isNaN(v))){ out.textContent = 'Enter all values'; out.style.color = 'var(--danger)'; return; }
+        const res = item.compute(...vals);
+        if(typeof res === 'number' && !Number.isFinite(res)){ out.textContent = 'Invalid result'; out.style.color = 'var(--danger)'; }
+        else { out.textContent = (typeof res === 'number') ? Number(res.toFixed(8)).toString().replace(/\\.0+$/,'').replace(/\\.?0+$/,'') : String(res); out.style.color='inherit'; }
+        return;
+      }
+
+      // formula kind
+      if(item.special){
+        // route special handlers by formulaId
+        const id = item.formulaId;
+        if(id === 'quadratic'){
+          const a=Number(values.a), b=Number(values.b), c=Number(values.c);
+          if(a===0){ out.textContent='a cannot be 0'; return; }
+          const disc = b*b - 4*a*c;
+          if(disc < 0) { out.textContent = `No real roots (discriminant=${disc})`; return; }
+          const r1 = (-b + Math.sqrt(disc)) / (2*a);
+          const r2 = (-b - Math.sqrt(disc)) / (2*a);
+          out.textContent = `Roots: ${r1}, ${r2}`; return;
+        }
+        if(id === 'mean'){
+          const arr = parseListInput(values.list||''); if(arr.length===0){ out.textContent='Enter numbers separated by commas'; return; }
+          const m = arr.reduce((s,x)=>s+x,0)/arr.length; out.textContent = `Mean = ${m}`; return;
+        }
+        if(id === 'std'){
+          const arr = parseListInput(values.list||''); if(arr.length<2){ out.textContent='Need at least 2 numbers'; return; }
+          const m = arr.reduce((s,x)=>s+x,0)/arr.length; const ss = arr.reduce((s,x)=> s + Math.pow(x-m,2),0); const s = Math.sqrt(ss/(arr.length-1)); out.textContent = `s = ${s}`; return;
+        }
+        if(id === 'perm' || id === 'comb'){
+          const n=Number(values.n), k=Number(values.k); if(!Number.isInteger(n)||!Number.isInteger(k)){ out.textContent='n and k must be integers'; return; } if(k>n){ out.textContent='k cannot exceed n'; return; }
+          const fn = (x)=>{ let r=1; for(let i=2;i<=x;i++) r*=i; return r };
+          if(id==='perm') out.textContent = String(fn(n)/fn(n-k)); else out.textContent = String(fn(n)/(fn(k)*fn(n-k)));
+          return;
+        }
+        if(id === 'factorial'){
+          const n=Number(values.n); if(!Number.isInteger(n)||n<0){ out.textContent='n must be non-negative integer'; return; } out.textContent = String(factorial(n)); return;
+        }
+        if(id === 'gcd'){
+          const a=Number(values.a), b=Number(values.b); out.textContent = String(gcd(a,b)); return;
+        }
+        out.textContent = 'No special handler implemented for this formula yet'; return;
+      }
+
+      // normal expr evaluation
+      if(item.expr){
+        const argNames = (item.vars||[]).map(v=>v.name);
+        const argValues = argNames.map(n=>{
+          const raw = values[n];
+          if(typeof raw === 'string' && raw.includes(',')) return parseListInput(raw);
+          const num = Number(raw);
+          if(Number.isNaN(num)) throw new Error(`${n} is not a number`);
+          return num;
+        });
+        const fn = new Function(...argNames, 'Math', `return (${item.expr});`);
+        const outv = fn(...argValues, Math);
+        if(typeof outv === 'number' && !Number.isFinite(outv)) { out.textContent = 'Invalid result'; out.style.color='var(--danger)'; }
+        else { out.textContent = String(outv); out.style.color='inherit'; }
+        return;
+      }
+
+      out.textContent = 'No expression available';
+    }catch(err){
+      out.textContent = 'Error: ' + err.message;
+      out.style.color = 'var(--danger)';
+    }
+  };
+
+  reset.onclick = () => {
+    Array.from(fields.querySelectorAll('input')).forEach(i=>i.value='');
+    out.textContent = '—'; out.style.color = 'inherit';
+  };
+
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(out.textContent||'').then(()=>{ alert('Result copied to clipboard') }).catch(()=>alert('Copy failed'));
+  };
+
+  actions.appendChild(calc); actions.appendChild(reset); actions.appendChild(copyBtn);
+  right.appendChild(actions);
+
+  // footer (kind + source) and the output
+  const foot = document.createElement('div'); foot.className='card-foot';
+  const meta = document.createElement('div'); meta.className='muted'; meta.textContent = `${item.kind === 'shape' ? 'Shape' : 'Formula'} • ${item.sourceCategory || ''}`;
+  foot.appendChild(meta);
+  foot.appendChild(out);
+  right.appendChild(foot);
+
+  wrap.appendChild(right);
+  card.appendChild(wrap);
+  return card;
+}
+
+/* ========== render all cards ========== */
+const allCardsContainer = document.getElementById('allCards');
+
+function renderAllItems(list){
+  allCardsContainer.innerHTML = '';
+  list.forEach(it => allCardsContainer.appendChild(createCard(it)));
+}
+
+// initial render of everything
+renderAllItems(allItems);
+
+/* ========== global search across everything ========== */
+const globalSearch = document.getElementById('globalSearch');
+globalSearch.addEventListener('input', filterAll);
+
+function filterAll(){
+  const q = (globalSearch.value || '').trim().toLowerCase();
+  const cards = Array.from(allCardsContainer.children);
+  cards.forEach(card => {
+    const title = card.dataset.title || '';
+    const desc = card.dataset.desc || '';
+    const latex = card.dataset.latex || '';
+    const source = card.dataset.source || '';
+    const matches = q === '' || title.includes(q) || desc.includes(q) || latex.includes(q) || source.includes(q);
+    card.style.display = matches ? '' : 'none';
+  });
+}
+
+/* ========== reset & download functionality ========== */
+document.getElementById('resetAll').addEventListener('click', ()=>{
+  globalSearch.value=''; filterAll();
+  // reset all outputs & inputs
+  Array.from(document.querySelectorAll('.card')).forEach(card=>{
+    Array.from(card.querySelectorAll('input')).forEach(i=> i.value='');
+    const out = card.querySelector('.result'); if(out) { out.textContent='—'; out.style.color='inherit'; }
+  });
+});
+
+function downloadHTML(){
+  const html = '<!doctype html>\\n' + document.documentElement.outerHTML;
+  const blob = new Blob([html], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'math_formula_hub_unified.html';
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+document.getElementById('downloadBtn').addEventListener('click', downloadHTML);
+
+/* expose DB for easy console edits */
+window.allItems = allItems;
+window.formulasDB = formulasDB;
+window.areaShapes = areaShapes;
+window.perimeterShapes = perimeterShapes;
+window.volumeShapes = volumeShapes;
+</script>
+</body>
+</html>
